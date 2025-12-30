@@ -74,3 +74,42 @@ export const getTransactions = async (req, res) => {
   }
 };
 
+export const updateTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { type, amount, category_id, date, notes } = req.body;
+    const { userId, role } = req.user;
+
+    const existing = await pool.query(
+      "SELECT user_id FROM transactions WHERE id = $1",
+      [id]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    if (role !== "admin" && existing.rows[0].user_id !== userId) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    const result = await pool.query(
+      `UPDATE transactions
+       SET type=$1, amount=$2, category_id=$3, date=$4, notes=$5, updated_at=NOW()
+       WHERE id=$6
+       RETURNING *`,
+      [type, amount, category_id, date, notes, id]
+    );
+
+    res.json({
+      message: "Transaction updated successfully",
+      transaction: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
