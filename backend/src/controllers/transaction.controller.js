@@ -112,4 +112,34 @@ export const updateTransaction = async (req, res) => {
   }
 };
 
+export const deleteTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, role } = req.user;
+
+    const existing = await pool.query(
+      "SELECT user_id FROM transactions WHERE id = $1",
+      [id]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    if (role !== "admin" && existing.rows[0].user_id !== userId) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    await pool.query(
+      "DELETE FROM transactions WHERE id = $1",
+      [id]
+    );
+
+    res.json({ message: "Transaction deleted successfully" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
