@@ -27,3 +27,50 @@ export const createTransaction = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getTransactions = async (req, res) => {
+  try {
+    const { role, userId } = req.user;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    let query;
+    let values;
+
+    if (role === "admin") {
+      query = `
+        SELECT t.*, c.name AS category_name
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        ORDER BY t.date DESC
+        LIMIT $1 OFFSET $2
+      `;
+      values = [limit, offset];
+    } else {
+      query = `
+        SELECT t.*, c.name AS category_name
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        WHERE t.user_id = $1
+        ORDER BY t.date DESC
+        LIMIT $2 OFFSET $3
+      `;
+      values = [userId, limit, offset];
+    }
+
+    const result = await pool.query(query, values);
+
+    res.json({
+      page,
+      limit,
+      transactions: result.rows
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
