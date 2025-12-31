@@ -4,12 +4,13 @@ import redisClient from "../config/redis.js";
 export const getSummary = async (req, res) => {
   try {
     const { userId, role } = req.user;
-    const cacheKey = `summary:${role}:${userId}`;
+    const cacheKey = `analytics:summary:${role}:${userId}`;
 
-    const cached = await redisClient.get(cacheKey);
-
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    if(redisClient){
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
     }
 
     let query;
@@ -43,7 +44,9 @@ export const getSummary = async (req, res) => {
         Number(result.rows[0].expense || 0)
     };
 
-    await redisClient.setEx(cacheKey, 900, JSON.stringify(data));
+    if(redisClient){
+      await redisClient.setEx(cacheKey, 900, JSON.stringify(data));
+    }
 
     res.json(data);
 
@@ -58,9 +61,11 @@ export const getCategoryBreakdown = async (req, res) => {
     const { userId, role } = req.user;
     const cacheKey = `analytics:category:${role}:${userId}`;
 
-    const cached = await redisClient.get(cacheKey);
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    if(redisClient){
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        return res.json({data:JSON.parse(cached)});
+      }
     }
 
     let query;
@@ -87,13 +92,15 @@ export const getCategoryBreakdown = async (req, res) => {
 
     const result = await pool.query(query, values);
 
-    await redisClient.setEx(
-      cacheKey,
-      900,
-      JSON.stringify(result.rows)
-    );
+    if(redisClient){
+      await redisClient.setEx(
+        cacheKey,
+        900,
+        JSON.stringify(result.rows)
+      );
+    }
 
-    res.json(result.rows);
+    res.json({data:result.rows});
 
   } catch (error) {
     console.error(error);
@@ -104,12 +111,13 @@ export const getCategoryBreakdown = async (req, res) => {
 export const getMonthlyTrends = async (req, res) => {
   try {
     const { userId, role } = req.user;
-
     const cacheKey = `analytics:monthly:${role}:${userId}`;
 
-    const cached = await redisClient.get(cacheKey);
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    if(redisClient){
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        return res.json({data:JSON.parse(cached)});
+      }
     }
 
     let query;
@@ -141,12 +149,14 @@ export const getMonthlyTrends = async (req, res) => {
 
     const result = await pool.query(query, values);
     
-    await redisClient.setEx(
-      cacheKey,
-      900,
-      JSON.stringify(result.rows)
-    );
-    res.json(result.rows);
+    if(redisClient){
+      await redisClient.setEx(
+        cacheKey,
+        900,
+        JSON.stringify(result.rows)
+      );
+    }
+    res.json({data:result.rows});
 
   } catch (error) {
     console.error(error);

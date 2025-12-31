@@ -4,7 +4,7 @@ import redisClient from "../config/redis.js";
 export const createTransaction = async (req, res) => {
   try {
     const { type, amount, category_id, date, notes } = req.body;
-    const userId = req.user.userId;
+    const {userId, role} = req.user;
 
     if (!type || !amount || !category_id || !date) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -18,10 +18,16 @@ export const createTransaction = async (req, res) => {
       [userId, type, amount, category_id, date, notes]
     );
 
+    if(redisClient){
+      await redisClient.del(`analytics:summary:${role}:${userId}`);
+      await redisClient.del(`analytics:category:${role}:${userId}`);
+      await redisClient.del(`analytics:monthly:${role}:${userId}`);
+    }
     res.status(201).json({
       message: "Transaction created successfully",
       transaction: result.rows[0]
     });
+
 
   } catch (error) {
     console.error(error);
@@ -102,6 +108,12 @@ export const updateTransaction = async (req, res) => {
       [type, amount, category_id, date, notes, id]
     );
 
+    if(redisClient){
+      await redisClient.del(`analytics:summary:${role}:${userId}`);
+      await redisClient.del(`analytics:category:${role}:${userId}`);
+      await redisClient.del(`analytics:monthly:${role}:${userId}`);
+    }
+
     res.json({
       message: "Transaction updated successfully",
       transaction: result.rows[0]
@@ -135,6 +147,12 @@ export const deleteTransaction = async (req, res) => {
       "DELETE FROM transactions WHERE id = $1",
       [id]
     );
+    
+   if(redisClient){
+      await redisClient.del(`analytics:summary:${role}:${userId}`);
+      await redisClient.del(`analytics:category:${role}:${userId}`);
+      await redisClient.del(`analytics:monthly:${role}:${userId}`);
+   }
 
     res.json({ message: "Transaction deleted successfully" });
 
@@ -143,5 +161,3 @@ export const deleteTransaction = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-await redisClient.flushDb();

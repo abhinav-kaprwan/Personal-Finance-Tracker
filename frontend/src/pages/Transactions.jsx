@@ -15,20 +15,22 @@ const Transactions = () => {
   const [categoryId, setCategoryId] = useState("");
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
-
+  const [page, setPage] = useState(1);
+  const [editingId, setEditingId] = useState(null);
+  const limit = 10;
   useEffect(() => {
     fetchCategories();
-    fetchTransactions();
-  }, []);
+    fetchTransactions(page);
+  }, [page]);
 
   const fetchCategories = async () => {
     const res = await api.get("/categories");
     setCategories(res.data);
   };
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (pageNumber = 1) => {
     setLoading(true);
-    const res = await api.get("/transactions");
+    const res = await api.get(`/transactions?page=${pageNumber}&limit=${limit}`);
     setTransactions(res.data.transactions);
     setLoading(false);
   };
@@ -39,20 +41,45 @@ const Transactions = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await api.post("/transactions", {
+    const payload = {
       type,
       amount,
       category_id: categoryId,
       date,
       notes
-    });
+    };
 
-    fetchTransactions();
+    if (editingId) {
+      await api.put(`/transactions/${editingId}`, payload);
+    } else {
+      await api.post("/transactions", payload);
+    }
+
+    setEditingId(null);
+    setPage(1);
+    fetchTransactions(1);
 
     setAmount("");
     setCategoryId("");
     setDate("");
     setNotes("");
+  };
+
+  const handleEdit = (transaction) => {
+    setEditingId(transaction.id);
+    setType(transaction.type);
+    setAmount(transaction.amount);
+    setCategoryId(transaction.category_id);
+    setDate(transaction.date.split("T")[0]);
+    setNotes(transaction.notes || "");
+  };
+
+  const handleDelete = async (id) => {
+    const confirm = window.confirm("Delete this transaction?");
+    if (!confirm) return;
+
+    await api.delete(`/transactions/${id}`);
+    fetchTransactions();
   };
 
   return (
@@ -117,8 +144,8 @@ const Transactions = () => {
           />
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Add Transaction
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          {editingId ? "Update Transaction" : "Add Transaction"}
         </button>
       </form>
     )}
@@ -145,6 +172,9 @@ const Transactions = () => {
                 </th>
                 <th className="px-4 py-2 text-right text-sm font-semibold text-gray-600">
                   Amount (₹)
+                </th>
+                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-600">
+                  Action
                 </th>
               </tr>
             </thead>
@@ -176,10 +206,57 @@ const Transactions = () => {
                   >
                     {t.amount}
                   </td>
+                  <td className="px-4 py-2 text-center">
+                    {user?.role !== "read-only" && (
+                      <button
+                        onClick={() => handleDelete(t.id)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-sm">
+                    <button
+                      onClick={() => handleEdit(t)}
+                      className="text-blue-600 hover:underline mr-2"
+                    >
+                      Edit
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(prev => prev - 1)}
+              className={`px-4 py-2 rounded ${
+                page === 1
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-blue-600 text-white"
+              }`}
+            >
+              Previous
+            </button>
+
+            <span className="text-sm text-gray-600">
+              Page {page}
+            </span>
+
+            <button
+              disabled={transactions.length < limit}
+              onClick={() => setPage(prev => prev + 1)}
+              className={`px-4 py-2 rounded ${
+                transactions.length < limit
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-blue-600 text-white"
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </Layout>

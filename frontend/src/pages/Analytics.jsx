@@ -4,7 +4,8 @@ import api from "../api/axios";
 import {
   PieChart, Pie, Cell,
   LineChart, Line,
-  XAxis, YAxis, Tooltip, Legend
+  XAxis, YAxis, Tooltip, Legend,
+  ResponsiveContainer, CartesianGrid
 } from "recharts";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF"];
@@ -25,15 +26,22 @@ const Analytics = () => {
         const monthlyRes = await api.get("/analytics/monthly");
 
         setSummary(summaryRes.data);
-
+        
+         console.log(categoryRes.data);
         setCategoryData(
-          categoryRes.data.map(item => ({
+          categoryRes.data.data.map(item => ({
             ...item,
             total: Number(item.total)
           }))
         );
-
-        setMonthlyData(monthlyRes.data);
+        console.log("monthlyRes:", monthlyRes.data);
+        setMonthlyData(
+          monthlyRes.data.data.map(item => ({
+            ...item,
+            income: Number(item.income),
+            expense: Number(item.expense)
+          }))
+        );
       } catch (err) {
         console.error("Analytics fetch error", err);
       } finally {
@@ -43,28 +51,6 @@ const Analytics = () => {
 
     loadAll();
   }, []);
-
-
-  const fetchSummary = async () => {
-    const res = await api.get("/analytics/summary");
-    setSummary(res.data);
-  };
-
-  const fetchCategory = async () => {
-    const res = await api.get("/analytics/category");
-    console.log("CATEGORY DATA:", res.data);
-    setCategoryData(
-    res.data.map(item => ({
-      ...item,
-      total: Number(item.total)
-    }))
-    );
-  };
-
-  const fetchMonthly = async () => {
-    const res = await api.get("/analytics/monthly");
-    setMonthlyData(res.data);
-  };
 
   return (
   <Layout>
@@ -140,22 +126,30 @@ const Analytics = () => {
             {monthlyData.length === 0 ? (
               <p className="text-gray-500">No monthly data available</p>
             ) : (
-              <LineChart width={500} height={300} data={monthlyData}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="income"
-                  stroke="#16a34a"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="expense"
-                  stroke="#dc2626"
-                />
-              </LineChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="income"
+                    stroke="#16a34a"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="expense"
+                    stroke="#dc2626"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+
             )}
           </div>
         </div>

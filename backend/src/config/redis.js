@@ -1,17 +1,24 @@
-import { createClient } from "redis";
+import Redis from "ioredis"
+import dotenv from "dotenv";
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL
-});
+dotenv.config();
 
-redisClient.on("connect", () => {
-  console.log("Redis connected");
-});
+let redisClient = null;
 
-redisClient.on("error", (err) => {
-  console.error("Redis error", err);
-});
+if (process.env.NODE_ENV === "production") {
+  redisClient = new Redis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: null,
+  });
 
-await redisClient.connect();
+  redisClient.on("connect", () => {
+    console.log("Redis connected");
+  });
+
+  redisClient.on("error", (err) => {
+    console.error("Redis error", err);
+  });
+} else {
+  console.log("Redis disabled in development");
+}
 
 export default redisClient;
