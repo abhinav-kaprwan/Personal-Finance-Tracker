@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import redisClient from "../config/redis.js";
 
 export const createTransaction = async (req, res) => {
   try {
@@ -143,3 +144,4 @@ export const deleteTransaction = async (req, res) => {
   }
 };
 
+await redisClient.flushDb();
