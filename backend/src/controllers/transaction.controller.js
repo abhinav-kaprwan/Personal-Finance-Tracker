@@ -19,9 +19,9 @@ export const createTransaction = async (req, res) => {
     );
 
     if(redisClient){
-      await redisClient.del(`analytics:summary:${role}:${userId}`);
-      await redisClient.del(`analytics:category:${role}:${userId}`);
-      await redisClient.del(`analytics:monthly:${role}:${userId}`);
+      redisClient.del(`analytics:summary:${role}:${userId}`);
+      redisClient.del(`analytics:category:${role}:${userId}`);
+      redisClient.del(`analytics:monthly:${role}:${userId}`);
     }
     res.status(201).json({
       message: "Transaction created successfully",
@@ -109,9 +109,9 @@ export const updateTransaction = async (req, res) => {
     );
 
     if(redisClient){
-      await redisClient.del(`analytics:summary:${role}:${userId}`);
-      await redisClient.del(`analytics:category:${role}:${userId}`);
-      await redisClient.del(`analytics:monthly:${role}:${userId}`);
+      redisClient.del(`analytics:summary:${role}:${userId}`);
+      redisClient.del(`analytics:category:${role}:${userId}`);
+      redisClient.del(`analytics:monthly:${role}:${userId}`);
     }
 
     res.json({
@@ -149,9 +149,9 @@ export const deleteTransaction = async (req, res) => {
     );
     
    if(redisClient){
-      await redisClient.del(`analytics:summary:${role}:${userId}`);
-      await redisClient.del(`analytics:category:${role}:${userId}`);
-      await redisClient.del(`analytics:monthly:${role}:${userId}`);
+      redisClient.del(`analytics:summary:${role}:${userId}`);
+      redisClient.del(`analytics:category:${role}:${userId}`);
+      redisClient.del(`analytics:monthly:${role}:${userId}`);
    }
 
     res.json({ message: "Transaction deleted successfully" });
