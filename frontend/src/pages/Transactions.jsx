@@ -150,7 +150,7 @@ const Transactions = () => {
       </form>
     )}
 
-      {/* TRANSACTION LIST */}
+      {/* TRANSACTION LIST ----*/}
       <h3>Transaction List</h3>
       {loading ? (
           <p className="text-gray-500">Loading transactions...</p>
