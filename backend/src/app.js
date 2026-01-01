@@ -7,7 +7,20 @@ import categoryRoutes from "./routes/category.routes.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://personal-finance-tracker-abhinav-kaprwans-projects.vercel.app/"
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+app.options("*", cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
