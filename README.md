@@ -1,151 +1,98 @@
-💰 Personal Finance Tracker – Full Stack Application
+# 💰 Personal Finance Tracker
 
-A full-stack personal finance management application that allows users to track income and expenses, visualize financial data, and manage transactions securely.
+A robust full-stack application designed to help users manage their financial health. This application allows users to securely track income and expenses, visualize financial data through dynamic charts, and manage transactions with a high-performance backend.
 
-🚀 Live Demo
+<div align="center">
 
-Frontend: https://YOUR_FRONTEND_URL.vercel.app
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 
-Backend API: https://YOUR_BACKEND_URL.onrender.com
+</div>
 
-🛠 Tech Stack
-Frontend
+---
 
-React (Vite)
+## 🚀 Live Demo
 
-Tailwind CSS
+Check out the live application deployed on Vercel and Render:
 
-Axios
+- **Frontend:** [https://YOUR_FRONTEND_URL.vercel.app](https://YOUR_FRONTEND_URL.vercel.app)
+- **Backend API:** [https://YOUR_BACKEND_URL.onrender.com](https://YOUR_BACKEND_URL.onrender.com)
 
-Recharts (Pie & Line Charts)
+---
 
-React Router
+## 🛠 Tech Stack
 
-Backend
+### Frontend
+* **Framework:** React (Vite)
+* **Styling:** Tailwind CSS
+* **HTTP Client:** Axios
+* **Visualization:** Recharts (Pie & Line Charts)
+* **Routing:** React Router
 
-Node.js
+### Backend
+* **Runtime:** Node.js
+* **Framework:** Express.js
+* **Database:** PostgreSQL (Neon Cloud DB)
+* **Authentication:** JWT (JSON Web Tokens)
+* **Caching:** Redis (Upstash)
 
-Express.js
+### Deployment
+* **Frontend:** Vercel
+* **Backend:** Render
+* **Database:** Neon PostgreSQL
+* **Cache:** Upstash Redis
 
-PostgreSQL (Neon Cloud DB)
+---
 
-JWT Authentication
+## ✨ Features
 
-Redis (Upstash – used for analytics caching)
+### 🔐 Authentication & Authorization
+* User registration and secure login.
+* **JWT-based authentication** for stateless session management.
+* **Role-Based Access Control (RBAC):** Distinct roles for standard users and admins.
+* Protected API routes to prevent unauthorized access.
 
-Deployment
+### 💸 Transaction Management
+* Add, view, and delete income & expense transactions.
+* Categorize transactions for better organization.
+* **Pagination:** Efficiently load large lists of transactions.
+* *Admin Feature:* Admins can view transactions across all users.
 
-Frontend: Vercel
+### 📊 Analytics Dashboard
+* Visual breakdown of total income, expenses, and current balance.
+* **Pie Chart:** Category-wise expense distribution.
+* **Line Chart:** Monthly income vs. expense trends.
+* **Performance:** Analytics data is cached via Redis to reduce database load.
 
-Backend: Render
+### ⚡ Performance & Security
+* **Redis Caching:** Implemented for analytics endpoints.
+* **Cache Invalidation:** Automatic updates when transactions are modified.
+* **Security:** Secure CORS configuration and environment-based settings.
 
-Database: Neon PostgreSQL
+---
 
-Cache: Upstash Redis
+## 📂 Project Structure
 
-✨ Features Implemented
-🔐 Authentication & Authorization
-
-User registration & login
-
-JWT-based authentication
-
-Role-based access (user, admin)
-
-Protected API routes
-
-💸 Transactions
-
-Add income & expense transactions
-
-Categorize transactions
-
-Paginated transaction list
-
-Role-based access (admin can see all users)
-
-📊 Analytics Dashboard
-
-Total income, expense & balance
-
-Category-wise expense breakdown (Pie Chart)
-
-Monthly income vs expense trend (Line Chart)
-
-Cached analytics for performance (Redis)
-
-📁 Categories
-
-Predefined income & expense categories
-
-Used while adding transactions
-
-⚡ Performance & Production Readiness
-
-Redis caching for analytics endpoints
-
-Cache invalidation on transaction changes
-
-Secure CORS configuration
-
-Environment-based configuration
-
-Production-ready API
-
-📂 Project Structure
+```bash
 personal_finance_tracker/
 │
 ├── backend/
 │   ├── src/
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   ├── config/
-│   │   ├── app.js
-│   │   └── server.js
+│   │   ├── controllers/   # Route logic
+│   │   ├── routes/        # API definitions
+│   │   ├── middleware/    # Auth & Error handling
+│   │   ├── config/        # DB & Redis config
+│   │   ├── app.js         # Express app setup
+│   │   └── server.js      # Entry point
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/
-│   │   ├── components/
-│   │   ├── api/
-│   │   └── contexts/
+│   │   ├── pages/         # Dashboard, Login, etc.
+│   │   ├── components/    # Reusable UI components
+│   │   ├── api/           # Axios setup
+│   │   └── contexts/      # Global state (Auth)
 │   └── package.json
-
-🔧 Environment Variables
-Backend (.env)
-PORT=5000
-DATABASE_URL=your_neon_db_url
-JWT_SECRET=your_secret_key
-NODE_ENV=production
-
-Frontend (.env)
-VITE_API_URL=https://YOUR_BACKEND_URL.onrender.com/api
-
-▶️ How to Run Locally
-Backend
-cd backend
-npm install
-npm run dev
-
-Frontend
-cd frontend
-npm install
-npm run dev
-
-🧠 Key Learnings / Highlights
-
-Implemented secure JWT authentication
-
-Designed RESTful APIs
-
-Handled production CORS issues
-
-Integrated cloud PostgreSQL (Neon)
-
-Used Redis caching safely in production
-
-Built responsive UI with Tailwind CSS
-
-Deployed full stack app successfully
