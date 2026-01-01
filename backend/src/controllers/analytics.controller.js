@@ -55,19 +55,9 @@ export const getSummary = async (req, res) => {
 
 export const getCategoryBreakdown = async (req, res) => {
   try {
+    console.log("getCategoryBreakdown called with userId:", req.user.userId);
+    
     const { userId, role } = req.user;
-    const cacheKey = `analytics:category:${role}:${userId}`;
-
-    if(redisClient){
-      try {
-        const cached = await redisClient.get(cacheKey);
-        if (cached) {
-          return res.json({data:JSON.parse(cached)});
-        }
-      } catch (redisError) {
-        console.error("Redis error (continuing without cache):", redisError);
-      }
-    }
 
     let query;
     let values = [];
@@ -91,43 +81,23 @@ export const getCategoryBreakdown = async (req, res) => {
       values = [userId];
     }
 
+    console.log("Executing category query:", query);
     const result = await pool.query(query, values);
-
-    if(redisClient){
-      try {
-        await redisClient.setEx(
-          cacheKey,
-          900,
-          JSON.stringify(result.rows)
-        );
-      } catch (redisError) {
-        console.error("Redis cache error:", redisError);
-      }
-    }
+    console.log("Category query result:", result.rows);
 
     res.json({data:result.rows});
 
   } catch (error) {
     console.error("Error fetching category breakdown:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 export const getMonthlyTrends = async (req, res) => {
   try {
+    console.log("getMonthlyTrends called with userId:", req.user.userId);
+    
     const { userId, role } = req.user;
-    const cacheKey = `analytics:monthly:${role}:${userId}`;
-
-    if(redisClient){
-      try {
-        const cached = await redisClient.get(cacheKey);
-        if (cached) {
-          return res.json({data:JSON.parse(cached)});
-        }
-      } catch (redisError) {
-        console.error("Redis error (continuing without cache):", redisError);
-      }
-    }
 
     let query;
     let values = [];
@@ -156,25 +126,15 @@ export const getMonthlyTrends = async (req, res) => {
       values = [userId];
     }
 
+    console.log("Executing monthly trends query:", query);
     const result = await pool.query(query, values);
-
-    if(redisClient){
-      try {
-        await redisClient.setEx(
-          cacheKey,
-          900,
-          JSON.stringify(result.rows)
-        );
-      } catch (redisError) {
-        console.error("Redis cache error:", redisError);
-      }
-    }
+    console.log("Monthly trends result:", result.rows);
     
     res.json({data:result.rows});
 
   } catch (error) {
     console.error("Error fetching monthly trends:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
