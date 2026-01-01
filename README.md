@@ -18,7 +18,7 @@ A robust full-stack application designed to help users manage their financial he
 
 Check out the live application deployed on Vercel and Render:
 
-- **Frontend (Live App):** [Click here to view](https://personal-finance-tracker-arju1dej8-abhinav-kaprwans-projects.vercel.app/login)
+- **Frontend (Live App):** [Click here to view](https://personal-finance-tracker-five-sand.vercel.app/)
 - **Backend API:** [Click here to view](https://personal-finance-tracker-zrc3.onrender.com)
 
 ---
