@@ -12,7 +12,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:3000",
-      "https://personal-finance-tracker-abhinav-kaprwans-projects.vercel.app/"
+      "https://personal-finance-tracker-abhinav-kaprwans-projects.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
