@@ -7,31 +7,36 @@ import categoryRoutes from "./routes/category.routes.js";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://personal-finance-tracker-abhinav-kaprwans-projects.vercel.app"
-      ];
-      
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Check if the origin ends with vercel.app (for preview deployments)
-      if (origin.includes("vercel.app") || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      
-      callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 200
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ];
+    
+    // Allow requests with no origin
+    if (!origin) return callback(null, true);
+    
+    // Allow any vercel.app domain
+    if (origin.includes("vercel.app")) {
+      return callback(null, true);
+    }
+    
+    // Allow specified origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // For other origins, still allow (remove this in production if needed)
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 

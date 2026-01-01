@@ -11,11 +11,16 @@ const Dashboard = () => {
   }, []);
 
   const fetchSummary = async () => {
-    setLoading(true);
-    console.log("API URL:", import.meta.env.VITE_API_URL);
-    const res = await api.get("/analytics/summary");
-    setSummary(res.data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      console.log("API URL:", import.meta.env.VITE_API_URL);
+      const res = await api.get("/analytics/summary");
+      setSummary(res.data);
+    } catch (error) {
+      console.error("Error fetching summary:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
