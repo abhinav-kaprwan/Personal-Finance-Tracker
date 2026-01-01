@@ -26,6 +26,16 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
+app.get("/health", async (req, res) => {
+  try {
+    const { default: pool } = await import("./config/db.js");
+    await pool.query("SELECT 1");
+    res.json({ status: "healthy", database: "connected" });
+  } catch (error) {
+    res.status(500).json({ status: "unhealthy", error: error.message });
+  }
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/analytics", analyticsRoutes);
