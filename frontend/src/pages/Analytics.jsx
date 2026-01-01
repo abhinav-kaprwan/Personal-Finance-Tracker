@@ -21,9 +21,12 @@ const Analytics = () => {
       try {
         setLoading(true);
 
-        const summaryRes = await api.get("/analytics/summary");
-        const categoryRes = await api.get("/analytics/category");
-        const monthlyRes = await api.get("/analytics/monthly");
+        // Call all APIs in parallel instead of sequential
+        const [summaryRes, categoryRes, monthlyRes] = await Promise.all([
+          api.get("/analytics/summary"),
+          api.get("/analytics/category"),
+          api.get("/analytics/monthly")
+        ]);
 
         setSummary(summaryRes.data);
         
