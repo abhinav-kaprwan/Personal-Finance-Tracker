@@ -8,8 +8,23 @@ export const getSummary = async (req, res) => {
     const { userId, role } = req.user;
     const cacheKey = `analytics:summary:${role}:${userId}`;
 
-    // Skip Redis for now to debug
-    console.log("Skipping Redis cache, querying database...");
+    // Try Redis cache with timeout
+    if(redisClient){
+      try {
+        const cached = await Promise.race([
+          redisClient.get(cacheKey),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+        ]);
+        if (cached) {
+          console.log("Returning cached summary");
+          return res.json(JSON.parse(cached));
+        }
+      } catch (redisError) {
+        console.error("Redis error (continuing without cache):", redisError.message);
+      }
+    }
+
+    console.log("Querying database for summary...");
 
     let query;
     let values = [];
@@ -44,6 +59,19 @@ export const getSummary = async (req, res) => {
         Number(result.rows[0].expense || 0)
     };
 
+    // Cache in Redis with timeout
+    if(redisClient){
+      try {
+        await Promise.race([
+          redisClient.setEx(cacheKey, 900, JSON.stringify(data)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+        ]);
+        console.log("Cached summary in Redis");
+      } catch (redisError) {
+        console.error("Redis cache error:", redisError.message);
+      }
+    }
+
     console.log("Returning data:", data);
     res.json(data);
 
@@ -58,6 +86,23 @@ export const getCategoryBreakdown = async (req, res) => {
     console.log("getCategoryBreakdown called with userId:", req.user.userId);
     
     const { userId, role } = req.user;
+    const cacheKey = `analytics:category:${role}:${userId}`;
+
+    // Try Redis cache with timeout
+    if(redisClient){
+      try {
+        const cached = await Promise.race([
+          redisClient.get(cacheKey),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+        ]);
+        if (cached) {
+          console.log("Returning cached category breakdown");
+          return res.json({data: JSON.parse(cached)});
+        }
+      } catch (redisError) {
+        console.error("Redis error (continuing without cache):", redisError.message);
+      }
+    }
 
     let query;
     let values = [];
@@ -85,6 +130,19 @@ export const getCategoryBreakdown = async (req, res) => {
     const result = await pool.query(query, values);
     console.log("Category query result:", result.rows);
 
+    // Cache in Redis with timeout
+    if(redisClient){
+      try {
+        await Promise.race([
+          redisClient.setEx(cacheKey, 900, JSON.stringify(result.rows)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+        ]);
+        console.log("Cached category breakdown in Redis");
+      } catch (redisError) {
+        console.error("Redis cache error:", redisError.message);
+      }
+    }
+
     res.json({data:result.rows});
 
   } catch (error) {
@@ -98,6 +156,23 @@ export const getMonthlyTrends = async (req, res) => {
     console.log("getMonthlyTrends called with userId:", req.user.userId);
     
     const { userId, role } = req.user;
+    const cacheKey = `analytics:monthly:${role}:${userId}`;
+
+    // Try Redis cache with timeout
+    if(redisClient){
+      try {
+        const cached = await Promise.race([
+          redisClient.get(cacheKey),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+        ]);
+        if (cached) {
+          console.log("Returning cached monthly trends");
+          return res.json({data: JSON.parse(cached)});
+        }
+      } catch (redisError) {
+        console.error("Redis error (continuing without cache):", redisError.message);
+      }
+    }
 
     let query;
     let values = [];
@@ -129,6 +204,19 @@ export const getMonthlyTrends = async (req, res) => {
     console.log("Executing monthly trends query:", query);
     const result = await pool.query(query, values);
     console.log("Monthly trends result:", result.rows);
+    
+    // Cache in Redis with timeout
+    if(redisClient){
+      try {
+        await Promise.race([
+          redisClient.setEx(cacheKey, 900, JSON.stringify(result.rows)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000))
+        ]);
+        console.log("Cached monthly trends in Redis");
+      } catch (redisError) {
+        console.error("Redis cache error:", redisError.message);
+      }
+    }
     
     res.json({data:result.rows});
 
