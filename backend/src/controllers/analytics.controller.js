@@ -3,19 +3,13 @@ import redisClient from "../config/redis.js";
 
 export const getSummary = async (req, res) => {
   try {
+    console.log("getSummary called with userId:", req.user.userId, "role:", req.user.role);
+    
     const { userId, role } = req.user;
     const cacheKey = `analytics:summary:${role}:${userId}`;
 
-    if(redisClient){
-      try {
-        const cached = await redisClient.get(cacheKey);
-        if (cached) {
-          return res.json(JSON.parse(cached));
-        }
-      } catch (redisError) {
-        console.error("Redis error (continuing without cache):", redisError);
-      }
-    }
+    // Skip Redis for now to debug
+    console.log("Skipping Redis cache, querying database...");
 
     let query;
     let values = [];
@@ -38,7 +32,9 @@ export const getSummary = async (req, res) => {
       values = [userId];
     }
 
+    console.log("Executing query:", query, "with values:", values);
     const result = await pool.query(query, values);
+    console.log("Query result:", result.rows);
 
     const data = {
       income: Number(result.rows[0].income || 0),
@@ -48,19 +44,12 @@ export const getSummary = async (req, res) => {
         Number(result.rows[0].expense || 0)
     };
 
-    if(redisClient){
-      try {
-        await redisClient.setEx(cacheKey, 900, JSON.stringify(data));
-      } catch (redisError) {
-        console.error("Redis cache error:", redisError);
-      }
-    }
-
+    console.log("Returning data:", data);
     res.json(data);
 
   } catch (error) {
     console.error("Error fetching summary:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
